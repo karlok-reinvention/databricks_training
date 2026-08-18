@@ -1,0 +1,579 @@
+{
+  "datasets": [
+    {
+      "name": "2063cfce",
+      "displayName": "Booking Trends and Revenue Overview Dataset",
+      "queryLines": [
+        "SELECT check_in_date, city, total_bookings, confirmed_bookings,\n",
+        "cancelled_bookings, pending_bookings, total_revenue, avg_nights\n",
+        "FROM workspace.`03_gold`.gold_bookings\n",
+        "ORDER  BY check_in_date\n",
+        "LIMIT  10;\n",
+        "\n"
+      ],
+      "columns": [
+        {
+          "displayName": "Total Revenue",
+          "description": "",
+          "expression": "SUM(total_revenue)"
+        },
+        {
+          "displayName": "Total Bookings",
+          "description": "",
+          "expression": "SUM(total_bookings)"
+        },
+        {
+          "displayName": "Confirmed Bookings",
+          "description": "",
+          "expression": "SUM(confirmed_bookings)"
+        },
+        {
+          "displayName": "Average Revenue per Bookings",
+          "description": "",
+          "expression": "SUM(total_revenue)/SUM(total_bookings)"
+        },
+        {
+          "displayName": "Total Cancelled Bookings",
+          "description": "",
+          "expression": "SUM(cancelled_bookings)"
+        }
+      ]
+    },
+    {
+      "name": "e91fb214",
+      "displayName": "Revenue by city",
+      "queryLines": [
+        "  SELECT city,\r\n",
+        "         ROUND(SUM(total_revenue), 2)  AS revenue,\r\n",
+        "         SUM(total_bookings)           AS bookings,\r\n",
+        "         SUM(confirmed_bookings)       AS confirmed\r\n",
+        "  FROM   workspace.`03_gold`.gold_bookings\r\n",
+        "  GROUP  BY city\r\n",
+        "  ORDER  BY revenue DESC;\r\n"
+      ]
+    },
+    {
+      "name": "758a0c4b",
+      "displayName": "Revenue by Trend",
+      "queryLines": [
+        "\r\n",
+        "  SELECT date_format(check_in_date, 'yyyy-MM')  AS month,\r\n",
+        "         ROUND(SUM(total_revenue), 2)           AS revenue,\r\n",
+        "         SUM(total_bookings)                    AS bookings\r\n",
+        "  FROM   workspace.`03_gold`.gold_bookings\r\n",
+        "  GROUP  BY 1\r\n",
+        "  ORDER  BY 1;"
+      ]
+    },
+    {
+      "name": "9575d942",
+      "displayName": "Booking Status mixed by city",
+      "queryLines": [
+        "  SELECT city,\r\n",
+        "         SUM(confirmed_bookings)  AS confirmed,\r\n",
+        "         SUM(completed_bookings)  AS completed,\r\n",
+        "         SUM(pending_bookings)    AS pending,\r\n",
+        "         SUM(cancelled_bookings)  AS cancelled\r\n",
+        "  FROM   workspace.`03_gold`.gold_bookings\r\n",
+        "  GROUP  BY city\r\n",
+        "  ORDER  BY confirmed DESC;"
+      ]
+    },
+    {
+      "name": "8f627b4e",
+      "displayName": "Operational KPIs by city",
+      "queryLines": [
+        "  SELECT city,\r\n",
+        "         SUM(total_nights)                         AS total_nights,\r\n",
+        "         ROUND(AVG(avg_nights), 2)                 AS avg_nights_per_booking,\r\n",
+        "         SUM(total_guests)                         AS total_guests,\r\n",
+        "         SUM(distinct_properties)                  AS property_days,\r\n",
+        "         ROUND(AVG(avg_price_per_night), 2)        AS avg_price_per_night\r\n",
+        "  FROM   workspace.`03_gold`.gold_bookings\r\n",
+        "  GROUP  BY city\r\n",
+        "  ORDER  BY total_nights DESC;"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "cef1de29",
+      "displayName": "Wanderwick Bookings",
+      "layout": [
+        {
+          "widget": {
+            "name": "total-reve",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "2063cfce",
+                  "fields": [
+                    {
+                      "name": "measure(Total Revenue)",
+                      "expression": "MEASURE(`Total Revenue`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "showDescription": false,
+                "description": "Total Revenue",
+                "title": "Total Revenue"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(Total Revenue)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "total",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "2063cfce",
+                  "fields": [
+                    {
+                      "name": "measure(Total Bookings)",
+                      "expression": "MEASURE(`Total Bookings`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Total Bookings"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(Total Bookings)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 2,
+            "y": 0,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "confirmed-bookings",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "2063cfce",
+                  "fields": [
+                    {
+                      "name": "measure(Confirmed Bookings)",
+                      "expression": "MEASURE(`Confirmed Bookings`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Confirmed Bookings"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(Confirmed Bookings)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 0,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "ave",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "2063cfce",
+                  "fields": [
+                    {
+                      "name": "measure(Average Revenue per Bookings)",
+                      "expression": "MEASURE(`Average Revenue per Bookings`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Average Revenue / Bookings"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(Average Revenue per Bookings)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 0,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "b80b7020",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "e91fb214",
+                  "fields": [
+                    {
+                      "name": "city",
+                      "expression": "`city`"
+                    },
+                    {
+                      "name": "sum(revenue)",
+                      "expression": "SUM(`revenue`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "city",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(revenue)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 5,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "e4ecad6e",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "758a0c4b",
+                  "fields": [
+                    {
+                      "name": "month",
+                      "expression": "`month`"
+                    },
+                    {
+                      "name": "sum(revenue)",
+                      "expression": "SUM(`revenue`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "month",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(revenue)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 2,
+            "width": 7,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "348483d0",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "9575d942",
+                  "fields": [
+                    {
+                      "name": "city",
+                      "expression": "`city`"
+                    },
+                    {
+                      "name": "sum(cancelled)",
+                      "expression": "SUM(`cancelled`)"
+                    },
+                    {
+                      "name": "sum(completed)",
+                      "expression": "SUM(`completed`)"
+                    },
+                    {
+                      "name": "sum(confirmed)",
+                      "expression": "SUM(`confirmed`)"
+                    },
+                    {
+                      "name": "sum(pending)",
+                      "expression": "SUM(`pending`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "city",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "fields": [
+                    {
+                      "fieldName": "sum(cancelled)"
+                    },
+                    {
+                      "fieldName": "sum(completed)"
+                    },
+                    {
+                      "fieldName": "sum(confirmed)"
+                    },
+                    {
+                      "fieldName": "sum(pending)"
+                    }
+                  ]
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 8,
+            "width": 5,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "049316fc",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "8f627b4e",
+                  "fields": [
+                    {
+                      "name": "city",
+                      "expression": "`city`"
+                    },
+                    {
+                      "name": "total_nights",
+                      "expression": "`total_nights`"
+                    },
+                    {
+                      "name": "avg_nights_per_booking",
+                      "expression": "`avg_nights_per_booking`"
+                    },
+                    {
+                      "name": "total_guests",
+                      "expression": "`total_guests`"
+                    },
+                    {
+                      "name": "property_days",
+                      "expression": "`property_days`"
+                    },
+                    {
+                      "name": "avg_price_per_night",
+                      "expression": "`avg_price_per_night`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "city"
+                  },
+                  {
+                    "fieldName": "total_nights"
+                  },
+                  {
+                    "fieldName": "avg_nights_per_booking"
+                  },
+                  {
+                    "fieldName": "total_guests"
+                  },
+                  {
+                    "fieldName": "property_days"
+                  },
+                  {
+                    "fieldName": "avg_price_per_night"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 8,
+            "width": 7,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "total-cancelled",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "2063cfce",
+                  "fields": [
+                    {
+                      "name": "measure(Total Cancelled Bookings)",
+                      "expression": "MEASURE(`Total Cancelled Bookings`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Total Cancelled Bookings"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(Total Cancelled Bookings)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 2,
+            "height": 2
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
